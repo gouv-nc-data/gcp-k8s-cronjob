@@ -13,9 +13,21 @@ variable "schedule" {
   type        = string
 }
 
-variable "image" {
-  description = "Image Docker à utiliser"
+variable "image_url" {
+  description = "url de l'image Docker à utiliser"
   type        = string
+}
+
+variable "image_gcp_project" {
+  description = "Projet GCP où se trouve l'image Docker (pour permissions de pull)"
+  type        = string
+  default     = "prj-dinum-data-templates-66aa"
+}
+
+variable "job_timezone" {
+  description = "Timezone for the CronJob schedule (e.g., 'Pacific/Noumea')"
+  type        = string
+  default     = "Pacific/Noumea"
 }
 
 variable "env_vars" {
@@ -24,8 +36,8 @@ variable "env_vars" {
   default     = {}
 }
 
-variable "env_from_secret" {
-  description = "Variables depuis K8s Secret"
+variable "env_from_k8s_secret" {
+  description = "Variables d'environnement injectées depuis des Secrets Kubernetes (et non GCP)"
   type = map(object({
     secret_name = string
     key         = string
@@ -34,8 +46,45 @@ variable "env_from_secret" {
 }
 
 variable "service_account_email" {
-  description = "Email du service account GCP (pour Workload Identity)"
+  description = "Email du service account GCP (optionnel si create_service_account = true)"
   type        = string
+  default     = null
+}
+
+variable "create_service_account" {
+  description = "Créer un Service Account GCP dédié pour ce job"
+  type        = bool
+  default     = true
+}
+
+variable "project_id" {
+  description = "ID du projet GCP où créer le Service Account et les ressources"
+  type        = string
+  default     = null
+}
+
+variable "gke_project_id" {
+  description = "ID du projet GCP hébergeant le cluster GKE (pour Workload Identity)"
+  type        = string
+  default     = "prj-dinum-gke-f8f8"
+}
+
+variable "gcp_service_account_roles" {
+  description = "Liste des rôles IAM à attribuer au Service Account sur le projet"
+  type        = list(string)
+  default     = []
+}
+
+variable "secret_project_id" {
+  description = "ID du projet contenant les secrets (si différent du project_id)"
+  type        = string
+  default     = "prj-dinum-p-secret-mgnt-aaf4"
+}
+
+variable "secrets_env_vars" {
+  description = "Map de variables d'environnement pointant vers des secrets GCP. Clé = Nom de la variable d'env, Valeur = ID du secret (sans projects/...)"
+  type        = map(string)
+  default     = {}
 }
 
 variable "resources_requests" {
