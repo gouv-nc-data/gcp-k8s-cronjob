@@ -76,7 +76,7 @@ variable "gcp_service_account_roles" {
 }
 
 variable "secret_project_id" {
-  description = "ID du projet contenant les secrets (si différent du project_id)"
+  description = "ID du projet contenant les secrets"
   type        = string
   default     = "prj-dinum-p-secret-mgnt-aaf4"
 }

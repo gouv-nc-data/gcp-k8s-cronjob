@@ -94,6 +94,15 @@ resource "kubernetes_cron_job_v1" "cronjob" {
               name  = var.name
               image = var.image_url
 
+              # Injection automatique du Project ID
+              dynamic "env" {
+                for_each = var.project_id != null ? [1] : []
+                content {
+                  name  = "GOOGLE_CLOUD_PROJECT"
+                  value = var.project_id
+                }
+              }
+
               # Variables d'environnement simples
               dynamic "env" {
                 for_each = var.env_vars
