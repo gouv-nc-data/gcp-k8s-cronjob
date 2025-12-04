@@ -5,22 +5,39 @@ Module pour déployer des CronJobs sur GKE avec Workload Identity.
 ## Usage
 
 ```hcl
+resource "kubernetes_namespace" "dir_jobs" {
+  metadata {
+    name = "${local.dir_name}-jobs"
+    labels = {
+      name      = "${local.dir_name}-jobs"
+      managedBy = "terraform"
+    }
+  }
+}
+
+
 module "my_cronjob" {
-  source = "git::https://github.com/gouv-nc-data/gcp-k8s-cronjob.git?ref=v1.0.0"
+  source = "git::https://github.com/gouv-nc-data/gcp-k8s-cronjob.git?ref=v1"
   
-  namespace = "data-jobs"
-  name      = "my-job"
+  namespace = kubernetes_namespace.dir_jobs.metadata[0].name
+  name      = "my-cronjob"
   schedule  = "0 3 * * *"
   image     = "gcr.io/project/image:latest"
+  project_id = module.dir-datawarehouse.project_id
   
-  service_account_email = google_service_account.my_job_sa.email
-  
+  gcp_service_account_roles = [
+    "roles/bigquery.dataEditor",
+    "roles/bigquery.jobUser"
+  ]
+  secrets_env_vars = {
+    ENV_VAR_NAME = "secret_name"
+  }
   env_vars = {
-    ENV_VAR = "value"
+    ENV_VAR_NAME = "value"
   }
 }
 ```
-
+<!-- BEGIN_TF_DOCS -->
 ## Inputs
 
 | Nom | Description | Type | Défaut | Requis |
@@ -45,3 +62,5 @@ module "my_cronjob" {
 | service_account_name | Nom du SA K8s |
 | schedule | Schedule |
 | namespace | Namespace |
+
+<!-- END_TF_DOCS -->
