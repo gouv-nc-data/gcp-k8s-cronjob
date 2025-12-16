@@ -3,6 +3,8 @@ name: "Terraform Docs"
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.tf'
     paths-ignore:
       - 'docs/**'
       - 'README.md'
