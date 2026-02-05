@@ -50,6 +50,13 @@ resource "kubernetes_service_account" "cronjob_sa" {
       "iam.gke.io/gcp-service-account" = local.gcp_sa_email
     }
   }
+
+  # S'assure que les permissions IAM sont appliquées avant la création du SA K8s
+  depends_on = [
+    google_service_account_iam_member.workload_identity,
+    google_secret_manager_secret_iam_member.secret_access,
+    google_project_iam_member.sa_roles
+  ]
 }
 
 
@@ -59,6 +66,13 @@ resource "kubernetes_cron_job_v1" "cronjob" {
     name      = var.name
     namespace = var.namespace
   }
+
+  # S'assure que toutes les permissions IAM sont appliquées avant de créer le CronJob
+  depends_on = [
+    kubernetes_service_account.cronjob_sa,
+    google_secret_manager_secret_iam_member.secret_access,
+    google_service_account_iam_member.workload_identity
+  ]
 
   spec {
     schedule                      = var.schedule
