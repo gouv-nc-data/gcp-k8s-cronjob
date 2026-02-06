@@ -98,8 +98,9 @@ resource "kubernetes_cron_job_v1" "cronjob" {
             restart_policy       = "OnFailure"
 
             container {
-              name  = var.name
-              image = var.image_url
+              name              = var.name
+              image             = var.image_url
+              image_pull_policy = "Always"
 
               # Injection automatique du Project ID
               dynamic "env" {
