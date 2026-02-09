@@ -145,12 +145,14 @@ resource "kubernetes_cron_job_v1" "cronjob" {
 
               resources {
                 requests = {
-                  memory = var.resources_requests.memory
-                  cpu    = var.resources_requests.cpu
+                  memory            = var.resources_requests.memory
+                  cpu               = var.resources_requests.cpu
+                  ephemeral-storage = var.resources_requests.ephemeral-storage
                 }
                 limits = {
-                  memory = var.resources_limits.memory
-                  cpu    = var.resources_limits.cpu
+                  memory            = var.resources_limits.memory
+                  cpu               = var.resources_limits.cpu
+                  ephemeral-storage = var.resources_limits.ephemeral-storage
                 }
               }
             }

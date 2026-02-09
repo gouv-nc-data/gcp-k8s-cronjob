@@ -90,24 +90,28 @@ variable "secrets_env_vars" {
 variable "resources_requests" {
   description = "Ressources demandées"
   type = object({
-    memory = string
-    cpu    = string
+    memory            = string
+    cpu               = string
+    ephemeral-storage = optional(string, "1Gi")
   })
   default = {
-    memory = "512Mi"
-    cpu    = "500m"
+    memory            = "512Mi"
+    cpu               = "500m"
+    ephemeral-storage = "1Gi"
   }
 }
 
 variable "resources_limits" {
   description = "Limites de ressources"
   type = object({
-    memory = string
-    cpu    = string
+    memory            = string
+    cpu               = string
+    ephemeral-storage = optional(string, "2Gi")
   })
   default = {
-    memory = "1Gi"
-    cpu    = "1000m"
+    memory            = "2Gi"
+    cpu               = "1000m"
+    ephemeral-storage = "2Gi"
   }
 }
 
