@@ -1,57 +1,22 @@
 
+# Module IAM (SA GCP + K8s + Workload Identity)
+module "iam" {
+  source = "git::https://github.com/gouv-nc-data/gcp-k8s-iam.git//?ref=v1"
+
+  name                   = var.name
+  namespace              = var.namespace
+  project_id             = var.project_id
+  gke_project_id         = var.gke_project_id
+  gcp_roles              = var.create_service_account ? var.gcp_service_account_roles : []
+  secret_project_id      = var.secret_project_id
+  secrets                = var.create_service_account ? var.secrets_env_vars : {}
+  display_name           = "Service Account for ${var.name} CronJob"
+  create_service_account = var.create_service_account
+}
+
 locals {
-  # Utilise le SA créé ou celui fourni
-  gcp_sa_email   = var.create_service_account ? google_service_account.job_sa[0].email : var.service_account_email
   secret_project = var.secret_project_id != "" ? var.secret_project_id : var.project_id
 }
-
-# Service Account GCP
-resource "google_service_account" "job_sa" {
-  count        = var.create_service_account ? 1 : 0
-  project      = var.project_id
-  account_id   = substr("${var.name}-sa", 0, 30)
-  display_name = "Service Account for ${var.name} CronJob"
-}
-
-# Rôles IAM sur le projet
-resource "google_project_iam_member" "sa_roles" {
-  for_each = var.create_service_account ? toset(var.gcp_service_account_roles) : toset([])
-
-  project = var.project_id
-  role    = each.value
-  member  = "serviceAccount:${local.gcp_sa_email}"
-}
-
-# Accès aux Secrets
-resource "google_secret_manager_secret_iam_member" "secret_access" {
-  for_each = var.create_service_account ? toset(values(var.secrets_env_vars)) : toset([])
-
-  project   = local.secret_project
-  secret_id = each.value
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${local.gcp_sa_email}"
-}
-
-# Workload Identity binding
-resource "google_service_account_iam_member" "workload_identity" {
-  count = var.create_service_account ? 1 : 0
-
-  service_account_id = google_service_account.job_sa[0].name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.gke_project_id}.svc.id.goog[${var.namespace}/${kubernetes_service_account.cronjob_sa.metadata[0].name}]"
-}
-
-# Service Account Kubernetes
-resource "kubernetes_service_account" "cronjob_sa" {
-  metadata {
-    name      = "${var.name}-sa"
-    namespace = var.namespace
-    annotations = {
-      "iam.gke.io/gcp-service-account" = local.gcp_sa_email
-    }
-  }
-}
-
 
 # CronJob
 resource "kubernetes_cron_job_v1" "cronjob" {
@@ -87,7 +52,7 @@ resource "kubernetes_cron_job_v1" "cronjob" {
           }
 
           spec {
-            service_account_name = kubernetes_service_account.cronjob_sa.metadata[0].name
+            service_account_name = module.iam.k8s_service_account_name
             restart_policy       = "OnFailure"
 
             container {
@@ -151,4 +116,32 @@ resource "kubernetes_cron_job_v1" "cronjob" {
       }
     }
   }
+}
+
+# ─────────────────────────────────────────────
+# Blocs moved pour la migration du state
+# ─────────────────────────────────────────────
+moved {
+  from = google_service_account.job_sa[0]
+  to   = module.iam.google_service_account.sa[0]
+}
+
+moved {
+  from = google_project_iam_member.sa_roles
+  to   = module.iam.google_project_iam_member.roles
+}
+
+moved {
+  from = google_secret_manager_secret_iam_member.secret_access
+  to   = module.iam.google_secret_manager_secret_iam_member.secret_access
+}
+
+moved {
+  from = google_service_account_iam_member.workload_identity[0]
+  to   = module.iam.google_service_account_iam_member.workload_identity
+}
+
+moved {
+  from = kubernetes_service_account.cronjob_sa
+  to   = module.iam.kubernetes_service_account.sa
 }

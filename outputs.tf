@@ -4,8 +4,13 @@ output "cronjob_name" {
 }
 
 output "service_account_name" {
-  value       = kubernetes_service_account.cronjob_sa.metadata[0].name
+  value       = module.iam.k8s_service_account_name
   description = "Nom du Service Account Kubernetes"
+}
+
+output "gcp_service_account_email" {
+  value       = module.iam.gcp_service_account_email
+  description = "Email du Service Account GCP"
 }
 
 output "schedule" {
