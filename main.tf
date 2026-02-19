@@ -27,9 +27,7 @@ resource "kubernetes_cron_job_v1" "cronjob" {
 
   # S'assure que toutes les permissions IAM sont appliquées avant de créer le CronJob
   depends_on = [
-    kubernetes_service_account.cronjob_sa,
-    google_secret_manager_secret_iam_member.secret_access,
-    google_service_account_iam_member.workload_identity
+    module.iam
   ]
 
   spec {
@@ -134,24 +132,4 @@ resource "kubernetes_cron_job_v1" "cronjob" {
 moved {
   from = google_service_account.job_sa[0]
   to   = module.iam.google_service_account.sa[0]
-}
-
-moved {
-  from = google_project_iam_member.sa_roles
-  to   = module.iam.google_project_iam_member.roles
-}
-
-moved {
-  from = google_secret_manager_secret_iam_member.secret_access
-  to   = module.iam.google_secret_manager_secret_iam_member.secret_access
-}
-
-moved {
-  from = google_service_account_iam_member.workload_identity[0]
-  to   = module.iam.google_service_account_iam_member.workload_identity
-}
-
-moved {
-  from = kubernetes_service_account.cronjob_sa
-  to   = module.iam.kubernetes_service_account.sa
 }
