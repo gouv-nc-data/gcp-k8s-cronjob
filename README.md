@@ -46,23 +46,19 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | n/a |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | n/a |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_iam"></a> [iam](#module\_iam) | git::https://github.com/gouv-nc-data/gcp-k8s-iam.git// | v1 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [google_project_iam_member.sa_roles](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
-| [google_secret_manager_secret_iam_member.secret_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
-| [google_service_account.job_sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
-| [google_service_account_iam_member.workload_identity](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [kubernetes_cron_job_v1.cronjob](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cron_job_v1) | resource |
-| [kubernetes_service_account.cronjob_sa](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_account) | resource |
 
 ## Inputs
 
@@ -93,6 +89,7 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_cronjob_name"></a> [cronjob\_name](#output\_cronjob\_name) | Nom du CronJob créé |
+| <a name="output_gcp_service_account_email"></a> [gcp\_service\_account\_email](#output\_gcp\_service\_account\_email) | Email du Service Account GCP |
 | <a name="output_namespace"></a> [namespace](#output\_namespace) | Namespace du CronJob |
 | <a name="output_schedule"></a> [schedule](#output\_schedule) | Schedule du CronJob |
 | <a name="output_service_account_name"></a> [service\_account\_name](#output\_service\_account\_name) | Nom du Service Account Kubernetes |
