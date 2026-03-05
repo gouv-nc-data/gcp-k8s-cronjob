@@ -43,9 +43,6 @@ resource "kubernetes_cron_job_v1" "cronjob" {
           app       = var.name
           managedBy = "terraform"
         }
-        annotations = {
-          "cluster-autoscaler.kubernetes.io/safe-to-evict" = var.is_spot ? "true" : "false"
-        }
       }
 
       spec {
@@ -56,6 +53,9 @@ resource "kubernetes_cron_job_v1" "cronjob" {
           metadata {
             labels = {
               app = var.name
+            }
+            annotations = {
+              "cluster-autoscaler.kubernetes.io/safe-to-evict" = var.is_spot ? "true" : "false"
             }
           }
 
