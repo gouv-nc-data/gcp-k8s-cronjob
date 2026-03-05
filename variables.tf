@@ -127,3 +127,9 @@ variable "backoff_limit" {
   default     = 2
 }
 
+variable "is_spot" {
+  description = "Utiliser des instances Spot (moins cher mais préemptible) ou On-Demand (plus stable)"
+  type        = bool
+  default     = false
+}
+

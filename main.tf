@@ -43,6 +43,9 @@ resource "kubernetes_cron_job_v1" "cronjob" {
           app       = var.name
           managedBy = "terraform"
         }
+        annotations = {
+          "cluster-autoscaler.kubernetes.io/safe-to-evict" = var.is_spot ? "true" : "false"
+        }
       }
 
       spec {
@@ -59,6 +62,10 @@ resource "kubernetes_cron_job_v1" "cronjob" {
           spec {
             service_account_name = module.iam.k8s_service_account_name
             restart_policy       = "OnFailure"
+
+            node_selector = var.is_spot ? {
+              "cloud.google.com/gke-spot" = "true"
+            } : null
 
             container {
               name              = var.name
