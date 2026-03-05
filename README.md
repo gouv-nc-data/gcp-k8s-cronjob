@@ -73,6 +73,7 @@ No requirements.
 | <a name="input_gke_project_id"></a> [gke\_project\_id](#input\_gke\_project\_id) | ID du projet GCP hébergeant le cluster GKE (pour Workload Identity) | `string` | `"prj-dinum-gke-f8f8"` | no |
 | <a name="input_image_gcp_project"></a> [image\_gcp\_project](#input\_image\_gcp\_project) | Projet GCP où se trouve l'image Docker (pour permissions de pull) | `string` | `"prj-dinum-data-templates-66aa"` | no |
 | <a name="input_image_url"></a> [image\_url](#input\_image\_url) | url de l'image Docker à utiliser | `string` | n/a | yes |
+| <a name="input_is_spot"></a> [is\_spot](#input\_is\_spot) | Utiliser des instances Spot (moins cher mais préemptible) ou On-Demand (plus stable) | `bool` | `false` | no |
 | <a name="input_job_timezone"></a> [job\_timezone](#input\_job\_timezone) | Timezone for the CronJob schedule (e.g., 'Pacific/Noumea') | `string` | `"Pacific/Noumea"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Nom du CronJob | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace Kubernetes | `string` | n/a | yes |
