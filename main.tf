@@ -54,14 +54,14 @@ resource "kubernetes_cron_job_v1" "cronjob" {
             labels = {
               app = var.name
             }
-            annotations = {
-              "cluster-autoscaler.kubernetes.io/safe-to-evict" = var.is_spot ? "true" : "false"
+            annotations = var.is_spot ? {} : {
+              "cluster-autoscaler.kubernetes.io/safe-to-evict" = "false"
             }
           }
 
           spec {
             service_account_name = module.iam.k8s_service_account_name
-            restart_policy       = "OnFailure"
+            restart_policy       = var.restart_policy
 
             node_selector = var.is_spot ? {
               "cloud.google.com/gke-spot" = "true"

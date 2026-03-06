@@ -133,3 +133,13 @@ variable "is_spot" {
   default     = false
 }
 
+variable "restart_policy" {
+  description = "Politique de redémarrage du conteneur (Never = pas de restart in-Pod, OnFailure = restart dans le même Pod)"
+  type        = string
+  default     = "Never"
+
+  validation {
+    condition     = contains(["Never", "OnFailure"], var.restart_policy)
+    error_message = "restart_policy doit être 'Never' ou 'OnFailure'."
+  }
+}
