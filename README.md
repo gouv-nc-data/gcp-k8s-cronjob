@@ -46,6 +46,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
+| <a name="provider_google"></a> [google](#provider\_google) | n/a |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | n/a |
 
 ## Modules
@@ -58,6 +59,8 @@ No requirements.
 
 | Name | Type |
 |------|------|
+| [google_storage_bucket.staging](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
+| [google_storage_bucket_iam_member.staging_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam_member) | resource |
 | [kubernetes_cron_job_v1.cronjob](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cron_job_v1) | resource |
 
 ## Inputs
@@ -67,6 +70,7 @@ No requirements.
 | <a name="input_active_deadline_seconds"></a> [active\_deadline\_seconds](#input\_active\_deadline\_seconds) | Délai maximum d'exécution en secondes | `number` | `3600` | no |
 | <a name="input_backoff_limit"></a> [backoff\_limit](#input\_backoff\_limit) | Nombre de tentatives en cas d'échec | `number` | `2` | no |
 | <a name="input_create_service_account"></a> [create\_service\_account](#input\_create\_service\_account) | Créer un Service Account GCP dédié pour ce job | `bool` | `true` | no |
+| <a name="input_create_staging_bucket"></a> [create\_staging\_bucket](#input\_create\_staging\_bucket) | Créer un bucket GCS pour le staging (DLT) | `bool` | `false` | no |
 | <a name="input_env_from_k8s_secret"></a> [env\_from\_k8s\_secret](#input\_env\_from\_k8s\_secret) | Variables d'environnement injectées depuis des Secrets Kubernetes (et non GCP) | <pre>map(object({<br/>    secret_name = string<br/>    key         = string<br/>  }))</pre> | `{}` | no |
 | <a name="input_env_vars"></a> [env\_vars](#input\_env\_vars) | Variables d'environnement | `map(string)` | `{}` | no |
 | <a name="input_gcp_service_account_roles"></a> [gcp\_service\_account\_roles](#input\_gcp\_service\_account\_roles) | Liste des rôles IAM à attribuer au Service Account sur le projet | `list(string)` | `[]` | no |
@@ -85,6 +89,7 @@ No requirements.
 | <a name="input_secret_project_id"></a> [secret\_project\_id](#input\_secret\_project\_id) | ID du projet contenant les secrets | `string` | `"prj-dinum-p-secret-mgnt-aaf4"` | no |
 | <a name="input_secrets_env_vars"></a> [secrets\_env\_vars](#input\_secrets\_env\_vars) | Map de variables d'environnement pointant vers des secrets GCP. Clé = Nom de la variable d'env, Valeur = ID du secret (sans projects/...) | `map(string)` | `{}` | no |
 | <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Email du service account GCP (optionnel si create\_service\_account = true) | `string` | `null` | no |
+| <a name="input_staging_bucket_location"></a> [staging\_bucket\_location](#input\_staging\_bucket\_location) | Localisation du bucket de staging | `string` | `"EU"` | no |
 
 ## Outputs
 
