@@ -16,6 +16,8 @@ module "iam" {
 
 locals {
   secret_project = var.secret_project_id != "" ? var.secret_project_id : var.project_id
+  # Nom du bucket (doit être unique globalement)
+  staging_bucket_name = "dlt-staging-${var.name}-${var.project_id}"
 }
 
 # CronJob
@@ -113,6 +115,15 @@ resource "kubernetes_cron_job_v1" "cronjob" {
                 }
               }
 
+              # Injection automatique du bucket de staging (DLT)
+              dynamic "env" {
+                for_each = var.create_staging_bucket ? [1] : []
+                content {
+                  name  = "BUCKET_URL"
+                  value = "gs://${local.staging_bucket_name}"
+                }
+              }
+
               resources {
                 requests = {
                   memory            = var.resources_requests.memory
@@ -131,6 +142,26 @@ resource "kubernetes_cron_job_v1" "cronjob" {
       }
     }
   }
+}
+
+# Ressources pour le staging GCS (optionnel)
+resource "google_storage_bucket" "staging" {
+  count    = var.create_staging_bucket ? 1 : 0
+  project  = var.project_id
+  name     = local.staging_bucket_name
+  location = var.staging_bucket_location
+  
+  force_destroy               = true
+  uniform_bucket_level_access = true
+  
+  public_access_prevention = "enforced"
+}
+
+resource "google_storage_bucket_iam_member" "staging_access" {
+  count  = var.create_staging_bucket ? 1 : 0
+  bucket = google_storage_bucket.staging[0].name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${module.iam.gcp_service_account_email}"
 }
 
 # ─────────────────────────────────────────────

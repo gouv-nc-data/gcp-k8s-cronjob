@@ -143,3 +143,16 @@ variable "restart_policy" {
     error_message = "restart_policy doit être 'Never' ou 'OnFailure'."
   }
 }
+
+variable "create_staging_bucket" {
+  description = "Créer un bucket GCS pour le staging (DLT)"
+  type        = bool
+  default     = false
+}
+
+variable "staging_bucket_location" {
+  description = "Localisation du bucket de staging"
+  type        = string
+  default     = "EU"
+}
+
