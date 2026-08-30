@@ -51,6 +51,39 @@ resource "kubernetes_cron_job_v1" "cronjob" {
         active_deadline_seconds = var.active_deadline_seconds
         backoff_limit           = var.backoff_limit
 
+        # Décide si l'échec d'un pod compte dans `backoff_limit`.
+        # Usage principal : `Ignore` sur la condition `DisruptionTarget` pour
+        # qu'une préemption/éviction GKE ne fasse pas échouer le Job, tout en
+        # gardant le fail-fast sur les erreurs applicatives.
+        dynamic "pod_failure_policy" {
+          for_each = length(var.pod_failure_policy_rules) > 0 ? [1] : []
+          content {
+            dynamic "rule" {
+              for_each = var.pod_failure_policy_rules
+              content {
+                action = rule.value.action
+
+                dynamic "on_pod_condition" {
+                  for_each = rule.value.on_pod_condition
+                  content {
+                    type   = on_pod_condition.value.type
+                    status = on_pod_condition.value.status
+                  }
+                }
+
+                dynamic "on_exit_codes" {
+                  for_each = rule.value.on_exit_codes == null ? [] : [rule.value.on_exit_codes]
+                  content {
+                    container_name = on_exit_codes.value.container_name
+                    operator       = on_exit_codes.value.operator
+                    values         = on_exit_codes.value.values
+                  }
+                }
+              }
+            }
+          }
+        }
+
         template {
           metadata {
             labels = {
