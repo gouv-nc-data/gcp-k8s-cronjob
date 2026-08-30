@@ -156,3 +156,34 @@ variable "staging_bucket_location" {
   default     = "EU"
 }
 
+
+variable "pod_failure_policy_rules" {
+  description = <<-EOT
+    Règles `podFailurePolicy` du Job : décident si l'échec d'un pod compte
+    dans `backoff_limit`. Cas d'usage principal : ignorer les préemptions et
+    évictions GKE (condition `DisruptionTarget`) pour qu'un pod tué avant
+    d'avoir tourné soit relancé, sans pour autant retenter les vraies erreurs
+    applicatives. Nécessite `restart_policy = "Never"` (défaut) et Kubernetes >= 1.31.
+  EOT
+  type = list(object({
+    action = string
+    on_pod_condition = optional(list(object({
+      type   = string
+      status = optional(string, "True")
+    })), [])
+    on_exit_codes = optional(object({
+      container_name = optional(string)
+      operator       = string
+      values         = list(number)
+    }))
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for r in var.pod_failure_policy_rules :
+      contains(["Ignore", "FailJob", "Count", "FailIndex"], r.action)
+    ])
+    error_message = "action doit être 'Ignore', 'FailJob', 'Count' ou 'FailIndex'."
+  }
+}
