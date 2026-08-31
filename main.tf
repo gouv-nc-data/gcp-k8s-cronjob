@@ -233,6 +233,19 @@ moved {
 # Le bloc présent jusqu'ici faisait donc échouer le plan de tout appelant
 # migrant de v1 vers v2.x. Sans lui, le SA est détruit puis recréé à
 # l'identique (même nom, même namespace, même annotation Workload Identity) :
-# à appliquer hors exécution des jobs. Pour une migration sans recréation,
-# utiliser `removed` (avec `lifecycle { destroy = false }`) puis `import` côté
-# appelant.
+# à appliquer hors exécution des jobs.
+#
+# ATTENTION lors de la migration v1 -> v2.x : l'ancien SA (type v1) et le
+# nouveau (type v1 du sous-module iam) n'ont aucune dépendance entre eux et
+# sont dans des modules différents, donc Terraform les traite EN PARALLÈLE.
+# La création part avant la fin de la destruction et l'apply échoue sur :
+#
+#   Error: serviceaccounts "<nom>-sa" already exists
+#
+# L'ancien SA est alors bien détruit : relancer l'apply suffit, il aboutit.
+# Pour l'éviter, détruire d'abord l'ancien SA dans un apply séparé
+# (`terraform destroy -target=module.<nom>.kubernetes_service_account.cronjob_sa`)
+# avant de basculer le ref.
+#
+# Pour une migration sans aucune recréation, utiliser `removed` (avec
+# `lifecycle { destroy = false }`) puis `import` côté appelant.
