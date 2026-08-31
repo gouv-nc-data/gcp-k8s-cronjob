@@ -220,7 +220,19 @@ moved {
   to   = module.iam.google_service_account_iam_member.workload_identity
 }
 
-moved {
-  from = kubernetes_service_account.cronjob_sa
-  to   = module.iam.kubernetes_service_account_v1.sa
-}
+# Pas de bloc `moved` pour le ServiceAccount Kubernetes : la v1 utilisait
+# `kubernetes_service_account`, le sous-module iam utilise
+# `kubernetes_service_account_v1`. Terraform refuse de déplacer un state entre
+# deux types de ressources tant que le provider n'implémente pas
+# MoveResourceState, ce que le provider Kubernetes ne fait pas :
+#
+#   Error: Move Resource State Not Supported
+#   The "kubernetes_service_account_v1" resource type does not support moving
+#   resource state across resource types.
+#
+# Le bloc présent jusqu'ici faisait donc échouer le plan de tout appelant
+# migrant de v1 vers v2.x. Sans lui, le SA est détruit puis recréé à
+# l'identique (même nom, même namespace, même annotation Workload Identity) :
+# à appliquer hors exécution des jobs. Pour une migration sans recréation,
+# utiliser `removed` (avec `lifecycle { destroy = false }`) puis `import` côté
+# appelant.
