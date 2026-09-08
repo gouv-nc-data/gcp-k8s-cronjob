@@ -183,10 +183,10 @@ resource "google_storage_bucket" "staging" {
   project  = var.project_id
   name     = local.staging_bucket_name
   location = var.staging_bucket_location
-  
+
   force_destroy               = true
   uniform_bucket_level_access = true
-  
+
   public_access_prevention = "enforced"
 }
 
@@ -194,6 +194,18 @@ resource "google_storage_bucket_iam_member" "staging_access" {
   count  = var.create_staging_bucket ? 1 : 0
   bucket = google_storage_bucket.staging[0].name
   role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${module.iam.gcp_service_account_email}"
+}
+
+# objectAdmin ne contient aucune permission storage.buckets.*, or les clients GCS
+# (dlt via gcsfs, par exemple) vérifient l'existence du bucket avant d'écrire.
+# Privé de storage.buckets.get, GCS répond 404 plutôt que 403 pour ne pas divulguer
+# l'existence du bucket, et le client conclut à tort que le bucket est absent.
+# legacyBucketReader apporte ce storage.buckets.get.
+resource "google_storage_bucket_iam_member" "staging_bucket_get" {
+  count  = var.create_staging_bucket ? 1 : 0
+  bucket = google_storage_bucket.staging[0].name
+  role   = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${module.iam.gcp_service_account_email}"
 }
 
