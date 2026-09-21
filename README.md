@@ -17,12 +17,12 @@ resource "kubernetes_namespace" "dir_jobs" {
 
 
 module "my_cronjob" {
-  source = "git::https://github.com/gouv-nc-data/gcp-k8s-cronjob.git?ref=v1"
+  source = "git::https://github.com/gouv-nc-data/gcp-k8s-cronjob.git?ref=v2.9"
   
   namespace = kubernetes_namespace.dir_jobs.metadata[0].name
   name      = "my-cronjob"
   schedule  = "0 3 * * *"
-  image     = "gcr.io/project/image:latest"
+  image_url  = "gcr.io/project/image:latest"
   project_id = module.dir-datawarehouse.project_id
   
   gcp_service_account_roles = [
